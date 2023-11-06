@@ -1,9 +1,13 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
+const BundleAnalyzerPlugin =
+	require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
 	entry: '/src/index.tsx',
-	mode: 'development',
 	devServer: {
 		open: true,
 		host: 'localhost',
@@ -23,7 +27,13 @@ module.exports = {
 			},
 			{
 				test: /\.css$/i,
-				use: ['style-loader', 'css-loader', 'postcss-loader'],
+				use: [
+					process.env.NODE_ENV === 'production'
+						? MiniCssExtractPlugin.loader
+						: 'style-loader',
+					'css-loader',
+					'postcss-loader',
+				],
 				exclude: /node_modules/,
 			},
 			{
@@ -42,14 +52,50 @@ module.exports = {
 			favicon: './public/favicon.ico',
 			manifest: './public/manifest.json',
 		}),
+		process.env.WEBPACK_BUNDLE_ANALYZE ? new BundleAnalyzerPlugin({}) : '',
+		new MiniCssExtractPlugin(),
 	],
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js', '.json'],
 	},
 	output: {
-		filename: 'bundle.js',
+		filename: '[name].bundle.js',
 		path: path.resolve(__dirname, 'dist'),
 		clean: true,
 	},
 	target: 'web',
+	optimization: {
+		minimizer: [
+			'...',
+			new CssMinimizerPlugin({
+				minimizerOptions: {
+					preset: [
+						'default',
+						{
+							discardComments: { removeAll: true },
+						},
+					],
+				},
+			}),
+			new ImageMinimizerPlugin({
+				minimizer: {
+					implementation: ImageMinimizerPlugin.imageminMinify,
+					options: {
+						plugins: [['imagemin-mozjpeg', { quality: 55, progressive: true }]],
+					},
+				},
+				generator: [
+					{
+						preset: 'webp',
+						type: 'import',
+						implementation: ImageMinimizerPlugin.imageminGenerate,
+						options: {
+							plugins: ['imagemin-webp']
+						},
+					},
+				],
+			}),
+		],
+		minimize: true,
+	},
 };
