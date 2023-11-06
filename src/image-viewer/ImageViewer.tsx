@@ -1,6 +1,6 @@
 import React from 'react';
 import './ImageViewer.css';
-import hike from './images/hike.jpg';
+import hike from './images/hike.jpg?as=webp';
 
 const ImageViewer: React.FC = () => {
 	return (
