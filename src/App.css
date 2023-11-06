@@ -1,0 +1,9 @@
+.giga-grid {
+	display: grid;
+	grid-template-areas:
+		'tools viewer'
+		'tools viewer';
+	grid-template-columns: max-content 4fr;
+	grid-template-rows: 1fr;
+	column-gap: 1rem;
+}

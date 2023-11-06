@@ -1,0 +1,6 @@
+.image-viewer-grid {
+	grid-area: viewer;
+}
+.previewer-img {
+	transform: translate(-50%, -50%);
+}
